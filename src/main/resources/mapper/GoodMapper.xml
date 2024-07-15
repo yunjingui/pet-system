@@ -1,0 +1,172 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.three.server.mapper.GoodMapper">
+
+    <resultMap id="GoodResultMap" type="com.three.server.entity.Good">
+        <id property="id" column="good_id"/>
+        <result property="name" column="good_name"/>
+        <result property="secondClassification" column="good_second_classification"/>
+        <result property="price" column="good_price"/>
+        <result property="quantity" column="good_quantity"/>
+        <result property="description" column="good_description"/>
+        <result property="avatar" column="good_avatar"/>
+        <result property="seller" column="good_seller"/>
+        <result property="isDeleted" column="good_is_deleted"/>
+        <result property="flow" column="good_flow"/>
+        <result property="level" column="good_level"/>
+        <result property="createdAt" column="good_created_at"/>
+        <result property="sale" column="good_sale"/>
+        <result property="discount" column="good_discount"/>
+        <result property="activity" column="good_activity"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.three.server.entity.Good"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO good (good_name, good_second_classification, good_price, good_quantity, good_description, good_avatar, good_seller, good_flow, good_level, good_discount, good_activity, good_is_deleted, good_sale, good_created_at)
+        VALUES (#{name}, #{secondClassification}, #{price}, #{quantity}, #{description}, #{avatar}, #{seller}, 0, 0, 1, #{activity}, 0, 0, now());
+    </insert>
+
+<!--    <insert id="insert" parameterType="com.three.server.entity.Good" useGeneratedKeys="true" keyProperty="id">-->
+<!--        INSERT INTO good (good_name, good_second_classification, good_price, good_quantity, good_description, good_avatar, good_seller, good_flow, good_level)-->
+<!--        VALUES (#{name}, #{secondClassification}, #{price}, #{quantity}, #{description}, #{avatar}, #{seller}, 0, 0);-->
+<!--    </insert>-->
+
+
+    <update id="deleteById" parameterType="int">
+        update good
+        set good_is_deleted = 1
+        WHERE good_id = #{id}
+    </update>
+
+    <update id="update" parameterType="com.three.server.entity.Good">
+        UPDATE good
+        SET good_name = #{name}, good_second_classification = #{secondClassification}, good_price = #{price}, good_quantity = #{quantity}, good_description = #{description}, good_avatar = #{avatar}, good_seller = #{seller}, good_flow = #{flow}, good_level = #{level}
+        WHERE good_id = #{id}
+    </update>
+
+    <update id="updateGoodLevel" parameterType="int">
+        UPDATE good
+        SET good_level = (SELECT AVG(comment_level) FROM comment WHERE comment_good = #{id})
+        WHERE good_id = #{id};
+    </update>
+
+
+    <select id="selectAll" resultMap="GoodResultMap">
+        SELECT * FROM good
+    </select>
+
+    <select id="selectById" parameterType="int" resultMap="GoodResultMap">
+        SELECT * FROM good
+        WHERE good_id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="GoodResultMap">
+        SELECT * FROM good
+        WHERE good_name LIKE CONCAT('%', #{name}, '%')
+    </select>
+
+    <select id="selectBySellerId" parameterType="int" resultMap="GoodResultMap">
+        SELECT * FROM good
+        WHERE good_seller = #{sellerId}
+    </select>
+
+    <select id="selectBySecondClassification" parameterType="int" resultMap="GoodResultMap">
+        SELECT * FROM good
+        WHERE good_second_classification = #{secondClassification}
+    </select>
+
+<!--    四个条件都要判空-->
+<!--    <select id="selectByNameAndClassificationAndLowestAndHighest" parameterType="map" resultMap="GoodResultMap">-->
+<!--        SELECT * FROM good-->
+<!--        WHERE-->
+<!--            <if test="name != null">good_name LIKE CONCAT('%', #{name}, '%')</if>-->
+<!--            <if test="name != null and second_classification != null"> AND </if>-->
+<!--            <if test="second_classification != null">good_second_classification = #{classification}</if>-->
+<!--            <if test="second_classification != null and lowest != null"> AND </if>-->
+<!--            <if test="lowest != null">good_price >= #{lowest}</if>-->
+<!--            <if test="lowest != null and highest != null"> AND </if>-->
+<!--            <if test="highest != null">#{highest} >= good_price</if>-->
+<!--    </select>-->
+    <select id="selectByNameAndClassificationAndLowestAndHighest" parameterType="map" resultMap="GoodResultMap">
+        SELECT * FROM good
+        <where>
+            <if test="name != null and !name.isEmpty()">
+                AND good_name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="classification != null">
+                AND good_second_classification = #{classification}
+            </if>
+            <if test="lowest != null">
+                AND good_price >= #{lowest}
+            </if>
+            <if test="highest != null">
+                AND #{highest} >= good_price
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+
+    <select id="rankForGood" parameterType="int">
+        select good_level from good
+        WHERE good_id = #{id}
+    </select>
+
+    <update id="plusGoodSale" parameterType="int">
+        update good
+        set (good_quantity = good_quantity - 1, good_sale = good_sale + 1)
+        WHERE good_id = #{id}
+    </update>
+
+    <update id="plusGoodFlow" parameterType="int">
+        update good
+        set good_flow = good_flow + 1
+        WHERE good_id = #{id}
+    </update>
+
+    <select id="isDiscount" parameterType="int" resultType="java.lang.Double">
+        select good_discount from good
+        WHERE good_id = #{id}
+    </select>
+
+    <update id="uploadAvatar" parameterType="map">
+        update good
+        set good_avatar = #{avatar}
+        WHERE good_id = #{id}
+    </update>
+
+    <insert id="insertGoodImage" parameterType="map">
+        INSERT INTO image (image_good, image_avatar)
+        VALUES (#{id}, #{imageUrl})
+    </insert>
+
+    <delete id="deleteGoodImage" parameterType="int">
+        DELETE FROM image
+        WHERE image_good = #{id}
+    </delete>
+
+    <select id="selectGoodImage" parameterType="int" resultType="java.lang.String">
+        SELECT image_avatar FROM image
+        WHERE image_id = #{id}
+    </select>
+
+    <select id="selectGoodImageByGoodId" parameterType="int" resultType="java.lang.String">
+        SELECT image_avatar FROM image
+        WHERE image_good = #{id}
+    </select>
+
+
+    <select id="selectByGoodIds" parameterType="list" resultMap="GoodResultMap">
+        SELECT * FROM good
+        WHERE good_id IN
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>

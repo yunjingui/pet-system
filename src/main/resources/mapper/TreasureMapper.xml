@@ -1,0 +1,38 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.three.server.mapper.TreasureMapper">
+    <resultMap id="TreasureResultMap" type="com.three.server.entity.Treasure">
+        <id property="customer" column="treasure_customer"/>
+        <id property="good" column="treasure_good"/>
+        <result property="createdAt" column="treasure_created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.three.server.entity.Treasure">
+        INSERT INTO treasure (treasure_customer, treasure_good, treasure_created_at)
+        VALUES
+        (
+        #{customer},
+        #{good},
+        NOW()
+        )
+    </insert>
+
+    <delete id="deleteByCustomerAndGood" parameterType="map">
+        DELETE FROM treasure WHERE treasure_customer = #{customer} AND treasure_good = #{good}
+    </delete>
+
+    <select id="selectAllByCustomer" resultMap="TreasureResultMap" parameterType="int">
+        SELECT * FROM treasure WHERE treasure_customer = #{customer}
+    </select>
+
+    <select id="selectAllQuantityByGood" resultType="int" parameterType="int">
+        SELECT COUNT(*) FROM treasure WHERE treasure_good = #{good}
+    </select>
+
+    <select id="selectIfCollected" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM treasure WHERE treasure_customer = #{customer} AND treasure_good = #{good}
+    </select>
+
+</mapper>

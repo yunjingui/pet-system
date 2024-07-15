@@ -1,0 +1,46 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.three.server.mapper.UserBehaviorMapper">
+    <resultMap id="UserBehaviorResultMap" type="com.three.server.entity.UserBehavior">
+        <id property="id" column="user_behavior_id"/>
+        <result property="userId" column="user_behavior_user"/>
+        <result property="goodId" column="user_behavior_good"/>
+        <result property="behaviorType" column="user_behavior_behavior_type"/>
+        <result property="time" column="user_behavior_time"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="UserBehaviorResultMap" parameterType="int">
+        SELECT * FROM user_behavior WHERE user_behavior_user_id = #{userId}
+    </select>
+
+    <select id="selectByGoodId" resultMap="UserBehaviorResultMap" parameterType="int">
+        SELECT * FROM user_behavior WHERE user_behavior_good_id = #{goodId}
+    </select>
+
+    <select id="selectDistinctGoodIdsByUserId" resultType="int" parameterType="int">
+        SELECT DISTINCT user_behavior_good_id FROM user_behavior WHERE user_behavior_user_id = #{userId}
+    </select>
+
+    <select id="selectAll"  resultMap="UserBehaviorResultMap">
+        SELECT * FROM user_behavior
+    </select>
+
+    <insert id="insert" parameterType="com.three.server.entity.UserBehavior">
+        INSERT INTO user_behavior (user_behavior_user_id, user_behavior_good_id, user_behavior_behavior_type, user_behavior_time)
+        VALUES
+        (
+        #{userId},
+        #{goodId},
+        #{behaviorType},
+        now()
+        )
+    </insert>
+
+    <delete id="deleteByUserIdAndGoodId" parameterType="int">
+        DELETE FROM user_behavior
+               WHERE user_behavior_id = #{userId} and user_behavior_good_id = #{goodId}
+                 and user_behavior_behavior_type = '收藏';
+    </delete>
+</mapper>

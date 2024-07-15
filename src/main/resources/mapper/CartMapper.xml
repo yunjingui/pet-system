@@ -1,0 +1,37 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.three.server.mapper.CartMapper">
+    <resultMap id="CartResultMap" type="com.three.server.entity.Cart">
+        <id property="customer" column="cart_customer"/>
+        <id property="good" column="cart_good"/>
+        <id property="size" column="cart_size"/>
+        <result property="quantity" column="cart_quantity"/>
+    </resultMap>
+
+
+    <insert id="insert" parameterType="com.three.server.entity.Cart">
+        INSERT INTO cart (cart_customer, cart_good, cart_size, cart_quantity)
+        VALUES (#{customer}, #{good}, #{size}, #{quantity})
+        ON DUPLICATE KEY UPDATE
+            cart_quantity = cart_quantity + VALUES(cart_quantity)
+    </insert>
+
+
+
+    <delete id="deleteByCustomerAndGoodAndSize" parameterType="map">
+        DELETE FROM cart
+        WHERE cart_customer = #{customer} AND cart_good = #{good} AND cart_size = #{size};
+    </delete>
+
+    <delete id="deleteByCustomer" parameterType="int">
+        DELETE FROM cart
+        WHERE cart_customer = #{customer};
+    </delete>
+
+    <select id="selectByCustomer" parameterType="int" resultMap="CartResultMap">
+        SELECT * FROM cart
+        WHERE cart_customer = #{customer};
+    </select>
+
+</mapper>

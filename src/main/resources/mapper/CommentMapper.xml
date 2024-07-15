@@ -1,0 +1,71 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.three.server.mapper.CommentMapper">
+    <resultMap id="CommentResultMap" type="com.three.server.entity.Comment">
+        <id property="id" column="comment_id"/>
+        <result property="customer" column="comment_customer"/>
+        <result property="order" column="comment_order"/>
+        <result property="good" column="comment_good"/>
+        <result property="level" column="comment_level"/>
+        <result property="description" column="comment_description"/>
+        <result property="isDeleted" column="comment_is_deleted"/>
+        <result property="createdAt" column="comment_created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.three.server.entity.Comment">
+        INSERT INTO comment (comment_customer, comment_order, comment_good, comment_level, comment_description, comment_is_deleted, comment_created_at)
+        VALUES
+            (
+                #{customer},
+                #{order},
+                #{good},
+                #{level},
+                #{description},
+                0,
+                NOW()
+            );
+    </insert>
+
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM comment WHERE comment_id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.three.server.entity.Comment">
+        UPDATE comment
+        <set>
+            <if test="customer != null">comment_customer = #{customer},</if>
+            <if test="order != null">comment_order = #{order},</if>
+            <if test="good != null">comment_good = #{good},</if>
+            <if test="level != null">comment_level = #{level},</if>
+            <if test="description != null">comment_description = #{description},</if>
+            <if test="isDeleted != null">comment_is_deleted = #{isDeleted},</if>
+        </set>
+        WHERE comment_id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="CommentResultMap" parameterType="int">
+        SELECT * FROM comment WHERE comment_id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="CommentResultMap">
+        SELECT * FROM comment
+    </select>
+
+    <select id="selectByGoodId" resultMap="CommentResultMap" parameterType="int">
+        SELECT * FROM comment WHERE comment_good = #{good}
+    </select>
+
+    <select id="selectByCustomerId" resultMap="CommentResultMap" parameterType="int">
+        SELECT * FROM comment WHERE comment_customer = #{customer}
+    </select>
+
+
+
+
+
+
+
+</mapper>
